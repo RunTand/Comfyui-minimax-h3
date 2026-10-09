@@ -1,0 +1,32 @@
+# ComfyUI runtime (installed by scripts)
+ComfyUI/
+.venv/
+venv/
+__pycache__/
+*.pyc
+.DS_Store
+*.log
+
+# Model weights (large; download via scripts)
+models-cache/
+*.safetensors
+*.ckpt
+*.pt
+*.bin
+*.gguf
+
+# Outputs / temp
+output/
+temp/
+input/
+.autodl-tmp/
+
+# Secrets
+.env
+.env.*
+!**/.env.example
+
+# IDE
+.idea/
+.vscode/
+*.swp
