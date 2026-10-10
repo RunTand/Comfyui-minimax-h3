@@ -1,26 +1,22 @@
-# 工作流说明
+# 工作流说明（漫剧流水线）
 
-本仓库不捆绑可能过期的大型 workflow JSON。请使用 ComfyUI 内置模板（需 ComfyUI ≥ 0.30.0）：
+## 桌面流水线对应关系
 
-1. 启动 WebUI  
-2. **Template Library（模板库）→ Video**  
-3. 选择：
-   - **MiniMax H3 T2V**（文生视频）
-   - **MiniMax H3 I2V**（图生视频 / 首尾帧）
-   - **MiniMax H3 R2V**（多参考生视频，需 Ref2VA 权重）
+| 步骤 | 执行方 | 模板 |
+|------|--------|------|
+| 1 小说→剧本 | DeepSeek / Kimi / GLM 等云端 API | 无 Comfy 模板 |
+| 2 剧本→分镜人物卡 | 同上 | 无 Comfy 模板 |
+| 3 场景图+定妆照 | 私有镜像 ComfyUI | [`api/step3_images.json`](api/step3_images.json) |
+| 4 480p 视频 | 私有镜像 ComfyUI | [`api/step4_video.json`](api/step4_video.json) |
+| 5 放大变清晰 | 私有镜像 ComfyUI | [`api/step5_upscale.json`](api/step5_upscale.json) |
 
-跑通后可在界面导出 JSON，放到本目录以便你的产品/团队固定版本：
+在你的 AutoDL 私有镜像中跑通后，可用官方模板导出 API JSON **覆盖**上述文件，只要保留占位符：`{{PROMPT}}`、`{{IMAGE_NAME}}` 等。
 
-```text
-workflows/
-  minimax_h3_t2v.json
-  minimax_h3_i2v.json
-```
+兼容旧简易模板：`t2v.json` / `i2v.json` / `t2i.json` 仍保留。
 
-导出给程序调用时，请使用 **API 格式** workflow（与界面格式不同）。
+## 镜像建议预装
 
-## 分辨率提醒
-
-- 短边 768，宽高对齐 32 的倍数  
-- 16:9 原生画布可用 `1344 × 768`  
-- 避免 Template 里 `1.0` Megapixels（可能超出 H3-Base 面积上限）
+- ComfyUI ≥ 0.30 + 中文翻译
+- SDXL（步骤 3 / 步骤 5 占位）
+- MiniMax-H3 权重（步骤 4）
+- （推荐）专用视频超分节点替换 step5

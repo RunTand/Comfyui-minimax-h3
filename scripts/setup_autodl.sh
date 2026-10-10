@@ -5,6 +5,7 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 INSTALL_DIR="${COMFYUI_DIR:-$ROOT_DIR/ComfyUI}"
 PYTHON_BIN="${PYTHON_BIN:-python3}"
+ZH_NODE_DIR="$INSTALL_DIR/custom_nodes/AIGODLIKE-ComfyUI-Translation"
 
 echo "==> Repo: $ROOT_DIR"
 echo "==> ComfyUI dir: $INSTALL_DIR"
@@ -51,23 +52,54 @@ echo "==> Installing Python dependencies..."
 "$PYTHON_BIN" -m pip install -U huggingface_hub hf_transfer || true
 
 mkdir -p \
+  models/checkpoints \
   models/diffusion_models \
   models/text_encoders \
   models/vae \
   models/loras \
+  models/clip \
   input \
   output \
   custom_nodes
+
+# Chinese UI translation
+if [[ ! -d "$ZH_NODE_DIR/.git" ]]; then
+  echo "==> Installing Chinese translation (AIGODLIKE-ComfyUI-Translation)..."
+  git clone --depth 1 https://github.com/AIGODLIKE/AIGODLIKE-ComfyUI-Translation.git "$ZH_NODE_DIR" \
+    || git clone --depth 1 https://ghproxy.net/https://github.com/AIGODLIKE/AIGODLIKE-ComfyUI-Translation.git "$ZH_NODE_DIR" \
+    || echo "WARN: failed to clone translation pack; install manually into custom_nodes/" >&2
+else
+  echo "==> Updating Chinese translation..."
+  git -C "$ZH_NODE_DIR" pull --ff-only || true
+fi
+
+# Prefer Chinese locale when translation pack is present
+if [[ -d "$ZH_NODE_DIR" ]]; then
+  mkdir -p "$INSTALL_DIR/user/default"
+  cat > "$INSTALL_DIR/user/default/comfy.settings.json" <<'JSON'
+{
+  "Comfy.Locale": "zh"
+}
+JSON
+fi
+
+# Copy API workflow templates into ComfyUI user area for convenience
+if [[ -d "$ROOT_DIR/workflows/api" ]]; then
+  mkdir -p "$INSTALL_DIR/user/default/workflows"
+  cp -f "$ROOT_DIR/workflows/api/"*.json "$INSTALL_DIR/user/default/workflows/" 2>/dev/null || true
+fi
 
 # Lightweight marker for our pack
 cat > "$INSTALL_DIR/.comfyui-minimax-h3" <<EOF
 installed_from=$ROOT_DIR
 comfyui_commit=$(git rev-parse HEAD)
 date_utc=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+zh_translation=$([[ -d "$ZH_NODE_DIR" ]] && echo yes || echo no)
 EOF
 
 echo ""
 echo "Setup done."
 echo "Next:"
 echo "  bash $ROOT_DIR/scripts/download_models.sh"
+echo "  bash $ROOT_DIR/scripts/download_t2i.sh"
 echo "  bash $ROOT_DIR/scripts/start_webui.sh"

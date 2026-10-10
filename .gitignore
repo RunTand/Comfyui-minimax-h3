@@ -26,6 +26,12 @@ input/
 .env.*
 !**/.env.example
 
+# Desktop app
+desktop/node_modules/
+desktop/dist/
+desktop/dist-electron/
+desktop/release/
+
 # IDE
 .idea/
 .vscode/

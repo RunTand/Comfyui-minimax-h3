@@ -95,6 +95,7 @@ for rel in wanted:
         shutil.copy2(path, dest)
     print("   %s" % dest)
 
-print("Done.")
+print("Done (MiniMax-H3 video weights).")
+print("Optional T2I checkpoint: bash scripts/download_t2i.sh")
 print("Start WebUI: bash scripts/start_webui.sh")
 PY

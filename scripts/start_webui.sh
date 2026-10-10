@@ -21,8 +21,13 @@ EXTRA_ARGS=("$@")
 echo "==> Starting ComfyUI WebUI"
 echo "    dir:  $INSTALL_DIR"
 echo "    bind: http://${HOST}:${PORT}"
+echo "    CORS: enabled (desktop / tunnel friendly)"
 echo "    AutoDL: map custom port ${PORT}, or SSH tunnel:"
 echo "      ssh -L ${PORT}:127.0.0.1:${PORT} -p <ssh_port> <user>@<host>"
 echo ""
 
-exec "$PYTHON_BIN" main.py --listen "$HOST" --port "$PORT" "${EXTRA_ARGS[@]}"
+exec "$PYTHON_BIN" main.py \
+  --listen "$HOST" \
+  --port "$PORT" \
+  --enable-cors-header \
+  "${EXTRA_ARGS[@]}"
